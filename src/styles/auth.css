@@ -1,0 +1,23 @@
+.cl-card {
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+  --border: theme(colors.gray.300);
+}
+
+.cl-footerActionText {
+  @apply text-gray-700;
+}
+
+.cl-footerActionLink {
+  @apply font-medium text-blue-950 hover:text-blue-900;
+}
+
+.cl-socialButtonsBlockButtonText {
+  @apply text-gray-700;
+}
+
+.cl-card *:nth-child(4),
+.cl-header {
+  display: none;
+}
