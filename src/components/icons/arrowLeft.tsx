@@ -10,9 +10,9 @@ export const ArrowLeftIcon = (props: ComponentProps<"svg">) => (
   >
     <path
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
       d="M8.333 4.167 2.5 10m0 0 5.833 5.833M2.5 10h15"
     />
   </svg>
