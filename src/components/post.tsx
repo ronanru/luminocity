@@ -22,7 +22,7 @@ export const Post = ({
   const Component = isLink ? Link : "div";
   return (
     <>
-      <div className="my-10 flex gap-4">
+      <div className="flex gap-4">
         <ScoreDisplay score={score} vote={vote} postId={id} />
         <Component href={`/posts/${id}`} className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2">
@@ -40,7 +40,6 @@ export const Post = ({
           </p>
         </Component>
       </div>
-      <div className="h-px w-full bg-border"></div>
     </>
   );
 };

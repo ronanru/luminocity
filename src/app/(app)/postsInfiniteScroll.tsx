@@ -36,7 +36,12 @@ export const PostsInfiniteScroll = ({
         ...firstPage,
         ...(query.data?.pages.flatMap((page) => page.posts) ?? []),
       ].map((post) => (
-        <Post isLink {...post} key={post.id} />
+        <>
+          <div className="py-10">
+            <Post isLink {...post} key={post.id} />
+          </div>
+          <div className="h-px w-full bg-border"></div>
+        </>
       ))}
       <ScrollDetector
         onInScroll={async () => {

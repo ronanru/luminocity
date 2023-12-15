@@ -12,7 +12,7 @@ export const Form = ({
   isSubmitting,
   ...props
 }: {
-  children: React.ReactElement | React.ReactElement[];
+  children: React.ReactNode | React.ReactNode[];
   isSubmitting: boolean;
   submitText: string;
 } & ComponentProps<"form">) => {

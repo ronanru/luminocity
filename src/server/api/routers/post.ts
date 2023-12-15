@@ -164,4 +164,41 @@ export const postRouter = createTRPCRouter({
       });
       return post?.score ?? 0;
     }),
+  getById: publicProcedure
+    .input(z.string().cuid2())
+    .query(async ({ ctx, input }) => {
+      const [post] = (await ctx.db
+        .select({
+          id: posts.id,
+          title: posts.title,
+          text: posts.text,
+          userId: posts.userId,
+          createdAt: posts.createdAt,
+          score: posts.score,
+          ...(ctx.auth.userId
+            ? {
+                vote: sql`(SELECT ${
+                  postVotes.isUpvote
+                } FROM ${postVotes} WHERE ${and(
+                  eq(postVotes.userId, ctx.auth.userId),
+                  eq(postVotes.postId, posts.id),
+                )} LIMIT 1)`,
+              }
+            : {}),
+        })
+        .from(posts)
+        .where(eq(posts.id, input))
+        .limit(1)
+        .execute()) as (Post & { vote?: number | null })[];
+      if (!post) return null;
+      const user = await clerkClient.users.getUser(post.userId);
+      return {
+        ...post,
+        vote: post.vote === null ? null : Boolean(post.vote),
+        user: {
+          imageUrl: user.imageUrl,
+          username: user.username,
+        },
+      };
+    }),
 });
