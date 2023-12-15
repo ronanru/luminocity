@@ -9,8 +9,10 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
+export const runtime = "edge";
+
 export const metadata = {
-  title: "Luminocity",
+  title: "Luminosity",
   description: "Social network for everyone",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };

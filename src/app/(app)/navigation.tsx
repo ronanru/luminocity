@@ -66,11 +66,12 @@ const SideBar = ({ links }: { links: Link[] }) => {
       ))}
       <div
         className="absolute w-60 bg-gray-50 h-12 rounded-lg top-6 -z-10 transition-transform"
-        style={{ transform: `translateY(${highlightedLinkIndex * 3}rem)` }}
-      ></div>
-      <div className="flex-1"></div>
+        style={{ transform: `translateY(${highlightedLinkIndex * 3.25}rem)` }}
+      />
+      <div className="flex-1" />
       <div>
         <UserButton
+          afterSignOutUrl="/"
           showName={true}
           appearance={{
             elements: {
@@ -86,9 +87,10 @@ const SideBar = ({ links }: { links: Link[] }) => {
 
 const MobileNav = ({ links }: { links: Link[] }) => {
   const pathname = usePathname();
+  const auth = useAuth();
   return (
     <div className="border-t">
-      <nav className="xl:hidden mx-auto max-w-[648px] grid grid-cols-[repeat(auto-fit,_minmax(0px,_1fr))]">
+      <nav className="xl:hidden h-20 mx-auto max-w-[648px] grid grid-cols-[repeat(auto-fit,_minmax(0px,_1fr))]">
         {links.map(({ icon: Icon, name, path }) => (
           <Link
             href={path}
@@ -101,23 +103,28 @@ const MobileNav = ({ links }: { links: Link[] }) => {
             <Icon /> {name}
           </Link>
         ))}
-        <button
-          onClick={(e) =>
-            e.currentTarget
-              .querySelector<HTMLButtonElement>(".cl-userButtonTrigger")
-              ?.click()
-          }
-          className="flex flex-col gap-2 px-4 py-3 w-full text-center items-center justify-center font-medium text-gray-700 transition-colors"
-        >
-          <UserButton
-            appearance={{
-              elements: {
-                avatarBox: "w-5 h-5",
-              },
-            }}
-          />
-          My Account
-        </button>
+        {auth.userId !== null && (
+          <button
+            onClick={({ target }) =>
+              (target as HTMLElement)
+                .querySelector<HTMLButtonElement>(".cl-userButtonTrigger")
+                ?.click()
+            }
+            className="flex flex-col gap-2 px-4 py-3 w-full text-center items-center justify-center font-medium text-gray-700 transition-colors"
+          >
+            <div className="h-5 w-5">
+              <UserButton
+                afterSignOutUrl="/"
+                appearance={{
+                  elements: {
+                    avatarBox: "w-5 h-5",
+                  },
+                }}
+              />
+            </div>
+            My Account
+          </button>
+        )}
       </nav>
     </div>
   );

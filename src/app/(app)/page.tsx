@@ -1,3 +1,5 @@
+import { PostsPage } from "./postsPage";
+
 export default function Feed() {
-  return "ALL POSTS";
+  return <PostsPage />;
 }

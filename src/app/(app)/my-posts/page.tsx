@@ -1,3 +1,5 @@
+import { PostsPage } from "../postsPage";
+
 export default function MyPostsPage() {
-  return "MY POSTS";
+  return <PostsPage onlyMine />;
 }
