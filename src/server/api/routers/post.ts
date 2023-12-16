@@ -16,7 +16,7 @@ export const postRouter = createTRPCRouter({
     .input(
       z.object({
         onlyMine: z.boolean().optional(),
-        cursor: z.number().nullish(),
+        cursor: z.number().default(0),
       }),
     )
     .query(
@@ -33,7 +33,6 @@ export const postRouter = createTRPCRouter({
         if (input.onlyMine && !ctx.auth.userId) {
           throw new TRPCError({ code: "UNAUTHORIZED" });
         }
-        const cursor = input.cursor ?? 0;
         const data = (await ctx.db
           .select({
             score: posts.score,
@@ -55,17 +54,20 @@ export const postRouter = createTRPCRouter({
           })
           .from(posts)
           .limit(20)
-          .offset(cursor * 20)
+          .offset(input.cursor * 20)
           .orderBy(desc(posts.score))
           .execute()) as (Post & { vote?: number | null })[];
         if (input.onlyMine) {
           const user = await currentUser();
           if (!user) throw new TRPCError({ code: "UNAUTHORIZED" });
           return {
-            cursor,
+            cursor: input.cursor,
             posts: data.map((post) => ({
               ...post,
-              vote: post.vote === null ? null : Boolean(post.vote),
+              vote:
+                !ctx.auth.userId || post.vote === null
+                  ? null
+                  : Boolean(post.vote),
               user: {
                 imageUrl: user.imageUrl,
                 username: user.username,
@@ -74,13 +76,16 @@ export const postRouter = createTRPCRouter({
           };
         }
         return {
-          cursor,
+          cursor: input.cursor,
           posts: await Promise.all(
             data.map(async (post) => {
               const user = await clerkClient.users.getUser(post.userId);
               return {
                 ...post,
-                vote: post.vote === null ? null : Boolean(post.vote),
+                vote:
+                  !ctx.auth.userId || post.vote === null
+                    ? null
+                    : Boolean(post.vote),
                 user: {
                   imageUrl: user.imageUrl,
                   username: user.username,
@@ -136,7 +141,7 @@ export const postRouter = createTRPCRouter({
           await tx
             .update(posts)
             .set({
-              score: sql`score + ${currentVote.isUpvote ? -1 : 1}`,
+              score: sql`${posts.score} + ${currentVote.isUpvote ? -1 : 1}`,
             })
             .where(eq(posts.id, input.postId));
         });
@@ -151,7 +156,7 @@ export const postRouter = createTRPCRouter({
           await tx
             .update(posts)
             .set({
-              score: sql`score + ${input.vote ? 1 : -1}`,
+              score: sql`${posts.score} + ${input.vote ? 1 : -1}`,
             })
             .where(eq(posts.id, input.postId));
         });
@@ -194,7 +199,8 @@ export const postRouter = createTRPCRouter({
       const user = await clerkClient.users.getUser(post.userId);
       return {
         ...post,
-        vote: post.vote === null ? null : Boolean(post.vote),
+        vote:
+          !ctx.auth.userId || post.vote === null ? null : Boolean(post.vote),
         user: {
           imageUrl: user.imageUrl,
           username: user.username,

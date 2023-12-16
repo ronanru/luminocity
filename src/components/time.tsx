@@ -8,7 +8,7 @@ const relativeFormatter = new Intl.RelativeTimeFormat("en-US", {
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   timeStyle: "short",
-  dateStyle: "short",
+  dateStyle: "medium",
 });
 
 const formatDate = (date: Date): string => {
@@ -19,7 +19,9 @@ const formatDate = (date: Date): string => {
     return relativeFormatter.format(Math.round(diff / 60000), "minute");
   if (diff > -86400000)
     return relativeFormatter.format(Math.round(diff / 3600000), "hour");
-  return dateFormatter.format(date);
+  if (diff > -604800000)
+    return relativeFormatter.format(Math.round(diff / 86400000), "day");
+  return `on ${dateFormatter.format(date)}`;
 };
 
 export const Time = ({

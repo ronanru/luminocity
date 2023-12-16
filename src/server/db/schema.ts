@@ -18,8 +18,8 @@ export const posts = mysqlTable(
     id: varchar("id", { length: 24 })
       .primaryKey()
       .$defaultFn(() => createId()),
-    title: varchar("title", { length: 256 }),
-    text: varchar("text", { length: 1024 }),
+    title: varchar("title", { length: 256 }).notNull(),
+    text: varchar("text", { length: 1024 }).notNull(),
     userId: varchar("user_id", { length: 32 }).notNull(),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
@@ -64,7 +64,7 @@ export const comments = mysqlTable(
       .primaryKey()
       .$defaultFn(() => createId()),
     postId: varchar("post_id", { length: 24 }).notNull(),
-    text: varchar("text", { length: 1024 }),
+    text: varchar("text", { length: 1024 }).notNull(),
     userId: varchar("user_id", { length: 32 }).notNull(),
     createdAt: timestamp("created_at")
       .default(sql`CURRENT_TIMESTAMP`)
@@ -73,9 +73,12 @@ export const comments = mysqlTable(
     score: int("score").notNull().default(0),
   },
   (comment) => ({
-    score: index("comment_score").on(comment.score),
+    createdAt: index("comment_created_at").on(comment.createdAt),
+    parentIdx: index("comment_parent").on(comment.parentId),
   }),
 );
+
+export type Comment = typeof comments.$inferSelect;
 
 export const commentsRelations = relations(comments, ({ many, one }) => ({
   post: one(posts, {

@@ -1,5 +1,5 @@
 import { PostsPage } from "./postsPage";
 
 export default function Feed() {
-  return <PostsPage />;
+  return <PostsPage onlyMine={false} />;
 }

@@ -19,12 +19,16 @@ export const Post = ({
   vote?: boolean | null;
   isLink?: boolean;
 }) => {
-  const Component = isLink ? Link : "div";
+  const WrapperComponent = isLink ? Link : "article";
+  const TitleComponent = isLink ? "p" : "h1";
   return (
     <>
       <div className="flex gap-4">
-        <ScoreDisplay score={score} vote={vote} postId={id} />
-        <Component href={`/posts/${id}`} className="flex flex-col gap-1.5">
+        <ScoreDisplay score={score} vote={vote} postId={id} for="post" />
+        <WrapperComponent
+          href={`/posts/${id}`}
+          className="flex flex-col gap-1.5"
+        >
           <div className="flex items-center gap-2">
             <Avatar className="w-6 h-6">
               <AvatarImage src={user.imageUrl} />
@@ -34,11 +38,11 @@ export const Post = ({
               Posted by {user.username} <Time date={createdAt} />
             </p>
           </div>
-          <p className="text-gray-900">{title}</p>
+          <TitleComponent className="text-gray-900">{title}</TitleComponent>
           <p className="whitespace-pre-wrap text-gray-700 text-sm leading-tight">
             {text}
           </p>
-        </Component>
+        </WrapperComponent>
       </div>
     </>
   );

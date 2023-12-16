@@ -16,23 +16,23 @@ type Link = {
 };
 
 export const Navigation = () => {
-  const { userId } = useAuth();
+  const { isSignedIn } = useAuth();
   const links: Link[] = [
     {
       icon: HomeIcon,
       name: "Home",
       path: "/",
     },
-    userId === null
+    isSignedIn
       ? {
-          icon: LogInIcon,
-          name: "Log In",
-          path: "/sign-in",
-        }
-      : {
           icon: MyPostsIcon,
           name: "My Posts",
           path: "/my-posts",
+        }
+      : {
+          icon: LogInIcon,
+          name: "Log In",
+          path: "/sign-in",
         },
   ];
   return (
@@ -50,24 +50,28 @@ const SideBar = ({ links }: { links: Link[] }) => {
     useState(currentLinkIndex);
   return (
     <div className="fixed inset-y-0 left-0 border-r py-6 pl-4 pr-5 gap-1 hidden xl:flex flex-col">
-      {links.map(({ icon: Icon, name, path }, i) => (
-        <Link
-          href={path}
-          key={path}
-          onMouseOut={() => setHighlightedLinkIndex(currentLinkIndex)}
-          onMouseOver={() => setHighlightedLinkIndex(i)}
-          className={twMerge(
-            "w-60 h-12 flex gap-4 font-medium rounded-lg px-4 py-3 text-gray-700 transition-colors",
-            path === pathname && "text-indigo-600",
-          )}
-        >
-          <Icon /> {name}
-        </Link>
-      ))}
-      <div
-        className="absolute w-60 bg-gray-50 h-12 rounded-lg top-6 -z-10 transition-transform"
-        style={{ transform: `translateY(${highlightedLinkIndex * 3.25}rem)` }}
-      />
+      <div className="flex flex-col overflow-hidden gap-1 [contain:paint]">
+        {links.map(({ icon: Icon, name, path }, i) => (
+          <Link
+            href={path}
+            key={path}
+            onMouseOut={() => setHighlightedLinkIndex(currentLinkIndex)}
+            onMouseOver={() => setHighlightedLinkIndex(i)}
+            className={twMerge(
+              "w-60 h-12 flex gap-4 font-medium rounded-lg px-4 py-3 text-gray-700 transition-colors",
+              path === pathname && "text-indigo-600",
+            )}
+          >
+            <Icon /> {name}
+          </Link>
+        ))}
+        <div
+          className="absolute w-60 bg-gray-50 h-12 rounded-lg top-6 -z-10 transition-transform"
+          style={{
+            transform: `translateY(${highlightedLinkIndex * 3.25 - 1.5}rem)`,
+          }}
+        />
+      </div>
       <div className="flex-1" />
       <div>
         <UserButton
@@ -87,7 +91,7 @@ const SideBar = ({ links }: { links: Link[] }) => {
 
 const MobileNav = ({ links }: { links: Link[] }) => {
   const pathname = usePathname();
-  const auth = useAuth();
+  const { isSignedIn } = useAuth();
   return (
     <div className="border-t">
       <nav className="xl:hidden h-20 mx-auto max-w-[648px] grid grid-cols-[repeat(auto-fit,_minmax(0px,_1fr))]">
@@ -103,7 +107,7 @@ const MobileNav = ({ links }: { links: Link[] }) => {
             <Icon /> {name}
           </Link>
         ))}
-        {auth.userId !== null && (
+        {isSignedIn && (
           <button
             onClick={({ target }) =>
               (target as HTMLElement)

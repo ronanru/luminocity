@@ -5,13 +5,14 @@ import { ScrollDetector } from "@/components/scrollDetector";
 import { api } from "@/trpc/react";
 import { type RouterOutputs } from "@/trpc/shared";
 import { useAuth } from "@clerk/nextjs";
+import { Fragment } from "react";
 import { CreatePostForm } from "./createPostForm";
 
 export const PostsInfiniteScroll = ({
   onlyMine,
   firstPage,
 }: {
-  onlyMine?: boolean;
+  onlyMine: boolean;
   firstPage: RouterOutputs["post"]["getAll"]["posts"];
 }) => {
   // const utils = api.useUtils();
@@ -28,23 +29,23 @@ export const PostsInfiniteScroll = ({
     },
   );
 
-  const { userId } = useAuth();
+  const { isSignedIn } = useAuth();
   return (
     <div className="pt-4">
-      {userId !== null && <CreatePostForm />}
+      {isSignedIn && <CreatePostForm />}
       {[
         ...firstPage,
         ...(query.data?.pages.flatMap((page) => page.posts) ?? []),
       ].map((post) => (
-        <>
+        <Fragment key={post.id}>
           <div className="py-10">
-            <Post isLink {...post} key={post.id} />
+            <Post isLink {...post} />
           </div>
           <div className="h-px w-full bg-border"></div>
-        </>
+        </Fragment>
       ))}
       <ScrollDetector
-        onInScroll={async () => {
+        onInView={async () => {
           query.hasNextPage && (await query.fetchNextPage());
         }}
       />

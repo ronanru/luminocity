@@ -6,23 +6,31 @@ import SlotCounter from "react-slot-counter";
 import { twMerge } from "tailwind-merge";
 import { DownvoteIcon } from "./icons/downvote";
 import { UpvoteIcon } from "./icons/upvote";
+import { ProtectedButton } from "./protectedButton";
 
-export const ScoreDisplay = ({
-  score,
-  vote,
-  postId,
-}: {
-  score: number;
-  vote?: boolean | null;
-  postId: string;
-}) => {
-  const [currentScore, setCurrentScore] = useState(score);
-  const [currentVote, setCurrentVote] = useState(vote);
+export const ScoreDisplay = (
+  props: {
+    score: number;
+    vote?: boolean | null;
+  } & (
+    | {
+        postId: string;
+        for: "post";
+      }
+    | {
+        commentId: string;
+        for: "comment";
+      }
+  ),
+) => {
+  const [currentScore, setCurrentScore] = useState(props.score);
+  const [currentVote, setCurrentVote] = useState(props.vote);
 
-  const setVoteMutation = api.post.setVote.useMutation({
-    onSuccess: (newScore) => {
-      setCurrentScore(newScore);
-    },
+  const commentMutation = api.comment.setVote.useMutation({
+    onSuccess: (newScore) => setCurrentScore(newScore),
+  });
+  const postMutation = api.post.setVote.useMutation({
+    onSuccess: (newScore) => setCurrentScore(newScore),
   });
 
   const setVote = (vote: boolean | null) => {
@@ -33,42 +41,66 @@ export const ScoreDisplay = ({
     else if (vote === false) newScore--;
     setCurrentScore(newScore);
     setCurrentVote(vote);
-    setVoteMutation.mutate({ postId, vote });
+    switch (props.for) {
+      case "comment":
+        commentMutation.mutate({
+          commentId: props.commentId,
+          vote,
+        });
+        break;
+      case "post":
+        postMutation.mutate({
+          postId: props.postId,
+          vote,
+        });
+        break;
+    }
   };
 
   return (
-    <div className="flex gap-2.5 flex-col items-center">
-      <button
+    <div
+      className={twMerge(
+        "flex items-center",
+        props.for === "post" && "flex-col gap-2.5",
+        props.for === "comment" && "text-sm text-gray-700 leading-tight gap-2",
+      )}
+    >
+      <ProtectedButton
         className={twMerge(
           "text-gray-700 hover:text-gray-800 transition-colors",
-          currentVote === true && "text-indigo-500",
+          props.for === "comment" && "w-4 h-4",
+          currentVote === true && "text-indigo-500 hover:text-gray-600",
         )}
-        onClick={() => {
-          setVote(vote === true ? null : true);
-        }}
+        onClick={() => setVote(currentVote === true ? null : true)}
       >
-        <UpvoteIcon />
+        <UpvoteIcon
+          className={props.for === "comment" ? "w-4 h-4" : undefined}
+        />
         <span className="sr-only">Upvote</span>
-      </button>
-      <div className="`font-medium text-gray-800 tabular-nums">
+      </ProtectedButton>
+      <div className="h-6 grid place-items-center">
         <SlotCounter
           value={currentScore}
           duration={0.3}
+          valueClassName={twMerge(
+            "font-medium tabular-nums",
+            props.for === "post" && "text-gray-800",
+          )}
           autoAnimationStart={false}
         />
       </div>
-      <button
+      <ProtectedButton
         className={twMerge(
           "text-gray-700 hover:text-gray-800 transition-colors",
-          currentVote === false && "text-indigo-500",
+          currentVote === false && "text-indigo-500 hover:text-gray-600",
         )}
-        onClick={() => {
-          setVote(vote === false ? null : false);
-        }}
+        onClick={() => setVote(currentVote === false ? null : false)}
       >
-        <DownvoteIcon />
+        <DownvoteIcon
+          className={props.for === "comment" ? "w-4 h-4" : undefined}
+        />
         <span className="sr-only">Downvote</span>
-      </button>
+      </ProtectedButton>
     </div>
   );
 };

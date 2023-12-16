@@ -1,8 +1,8 @@
 import { BackButton } from "@/components/backButton";
-import { Form } from "@/components/form";
 import { Post } from "@/components/post";
 import { api } from "@/trpc/server";
 import { notFound } from "next/navigation";
+import { CommentSection } from "./commentSection";
 
 export default async function PostPage({
   params,
@@ -11,20 +11,24 @@ export default async function PostPage({
     postId: string;
   };
 }) {
-  const post = await api.post.getById.query(params.postId);
+  const [post, { children, hasMoreChildren }] = await Promise.all([
+    api.post.getById.query(params.postId),
+    api.comment.getByParentId.query({
+      parentId: null,
+      postId: params.postId,
+      skip: 0,
+    }),
+  ]);
   if (!post) throw notFound();
   return (
     <div className="flex flex-col gap-6">
       <BackButton href="/" text="Back to posts" />
       <Post {...post} />
-      <Form submitText="Comment" isSubmitting={false}>
-        <input
-          type="text"
-          className="placeholder:text-gray-500"
-          placeholder="Comment your thoughts"
-        />
-      </Form>
-      <div className="h-px w-full bg-border" />
+      <CommentSection
+        initialChildren={children}
+        initialHasMoreChildren={hasMoreChildren}
+        postId={params.postId}
+      />
     </div>
   );
 }

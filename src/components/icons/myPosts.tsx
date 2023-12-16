@@ -1,12 +1,13 @@
 import { type ComponentProps } from "react";
+import { twMerge } from "tailwind-merge";
 
 export const MyPostsIcon = (props: ComponentProps<"svg">) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
     fill="none"
+    viewBox="0 0 20 20"
     {...props}
+    className={twMerge("w-5 h-5", props.className)}
   >
     <path
       stroke="currentColor"

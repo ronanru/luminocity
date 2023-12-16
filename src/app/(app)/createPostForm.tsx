@@ -36,10 +36,10 @@ export const CreatePostForm = () => {
         placeholder="Title of your post"
         maxLength={256}
         minLength={3}
-        className="placeholder:text-gray-500"
+        className="placeholder:text-gray-500 text-gray-800"
       />
       <Textarea
-        className="resize-none placeholder:text-gray-500"
+        className="resize-none placeholder:text-gray-500 text-gray-800"
         name="text"
         placeholder="Share your thoughts with the world!"
         minRows={1}
