@@ -31,8 +31,12 @@ export const PostsInfiniteScroll = ({
 
   const { isSignedIn } = useAuth();
   return (
-    <div className="pt-4">
-      {isSignedIn && <CreatePostForm />}
+    <div className="-mt-6">
+      {isSignedIn && (
+        <div className="pt-10">
+          <CreatePostForm />
+        </div>
+      )}
       {[
         ...firstPage,
         ...(query.data?.pages.flatMap((page) => page.posts) ?? []),
