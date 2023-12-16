@@ -33,7 +33,7 @@ export const postRouter = createTRPCRouter({
         if (input.onlyMine && !ctx.auth.userId) {
           throw new TRPCError({ code: "UNAUTHORIZED" });
         }
-        const data = (await ctx.db
+        const data = await ctx.db
           .select({
             score: posts.score,
             id: posts.id,
@@ -53,10 +53,14 @@ export const postRouter = createTRPCRouter({
               : {}),
           })
           .from(posts)
-          .limit(20)
-          .offset(input.cursor * 20)
+          .where(
+            input.onlyMine ? eq(posts.userId, ctx.auth.userId!) : sql`TRUE`,
+          )
+          .orderBy(desc(posts.createdAt))
           .orderBy(desc(posts.score))
-          .execute()) as (Post & { vote?: number | null })[];
+          .offset(input.cursor * 20)
+          .limit(20)
+          .execute();
         if (input.onlyMine) {
           const user = await currentUser();
           if (!user) throw new TRPCError({ code: "UNAUTHORIZED" });
